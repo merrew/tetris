@@ -6,11 +6,12 @@
 class Game
 {
 public:
+	Font customFont;
 	Grid grid;
 
 	//bool time_check();
 	int level;
-	double speed = 0.5;
+	double speed = 0.7;
 	int deleted_rows = 0;
 	int score = 0;
 	int best_score;
@@ -68,6 +69,8 @@ public:
 	bool Collision_AnotherBlock_Up();
 
 	void Pause();
+	void DrawTextWithOutline(Font font, const char* text, Vector2 position,
+		float fontSize, float spacing, Color textColor, Color outlineColor, int outlineSize);
 	void Draw();
 	~Game();
 

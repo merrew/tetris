@@ -13,5 +13,7 @@ extern Color Blue;
 extern Color White;
 extern Color LightGray;
 extern Color Gray;
+extern Color BeigeGray;
 
 std::vector<Color> SetColor();
+std::vector<Texture2D> SetTexture();

@@ -33,6 +33,8 @@ bool Game::eventTriggered(double interval)
 
 Game::Game()
 {
+	customFont = LoadFont("font.ttf");
+
 	FillBlocks();
 	currentBlock = GetRandBlock();
 
@@ -52,14 +54,14 @@ Game::Game()
 
 	Image image = LoadImage("pause.png");
 	this->pause = LoadTextureFromImage(image);
-	pauseRect = Rectangle{ (float)ScreenWeight + 30, ScreenHeight / 9 + 830, (float)image.width, (float)image.height };
+	pauseRect = Rectangle{ ScreenWeight + 10, ScreenHeight / 9 + 830, (float)image.width, (float)image.height };
 	UnloadImage(image);
 
 	image = LoadImage("play.png");
 	this->play = LoadTextureFromImage(image);
 	UnloadImage(image);
 
-	soundRect = Rectangle{ (float)ScreenWeight + 230, ScreenHeight / 9 + 830, (float)image.width, (float)image.height };
+	soundRect = Rectangle{ ScreenWeight + 140, ScreenHeight / 9 + 830, (float)image.width, (float)image.height };
 	image = LoadImage("sound_on.png");
 	this->sound = LoadTextureFromImage(image);
 	UnloadImage(image);
@@ -68,7 +70,7 @@ Game::Game()
 	this->soundOff = LoadTextureFromImage(image);
 	UnloadImage(image);
 
-	reloadRect = Rectangle{ (float)ScreenWeight + 130, ScreenHeight / 9 + 830, (float)image.width, (float)image.height };
+	reloadRect = Rectangle{ ScreenWeight + 75, ScreenHeight / 9 + 830, (float)image.width, (float)image.height };
 	image = LoadImage("reload.png");
 	this->reload = LoadTextureFromImage(image);
 	UnloadImage(image);
@@ -100,6 +102,22 @@ Block Game::GetRandBlock()
 	return randBlock;
 }
 
+void Game::DrawTextWithOutline(Font font, const char* text, Vector2 position,
+	float fontSize, float spacing, Color textColor, Color outlineColor, int outlineSize)
+{
+	// Рисуем обводку
+	for (int x = -outlineSize; x <= outlineSize; x++) {
+		for (int y = -outlineSize; y <= outlineSize; y++) {
+			if (x == 0 && y == 0) continue;
+			DrawTextEx(font, text, { position.x + x, position.y + y },
+				fontSize, spacing, outlineColor);
+		}
+	}
+
+	// Основной текст
+	DrawTextEx(font, text, position, fontSize, spacing, textColor);
+}
+
 void Game::Pause()
 {
 	grid.Draw();
@@ -109,37 +127,65 @@ void Game::Pause()
 
 	while (!Collision_Wall_Down(copy_block) && !Collision_AnotherBlock_Down(copy_block))
 		copy_block.Move(1, 0);
-	copy_block.Draw(Gray);
+	copy_block.Draw(Gray, 8);
 
 	currentBlock.Draw();
 
-	DrawText("Next", ScreenWeight + 30 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 - 50, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 3, DarkGray);
+
+	DrawTextWithOutline(customFont, "Next",
+		{
+		ScreenWeight + 5 + ScreenWeight / numberCols * 3 / 2,
+			ScreenHeight / 9 - 40
+		},
+		30,
+		0,
+		WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 20 - 1,
+		ScreenHeight / 9 - 1,
+		ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 3 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 3, DarkGray);
 	nextBlock.Draw();
 
-	DrawText("Score", ScreenWeight + 30 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 200, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9 + 250, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
+	DrawTextWithOutline(customFont, "Score", {
+		ScreenWeight + ScreenWeight / numberCols * 3 / 2,  ScreenHeight / 9 + 210 }, 30, 0, WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 30 - 1,
+		ScreenHeight / 9 + 250 - 1,
+		ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 2 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9 + 250, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
+	
 	std::string score_str = std::to_string(score);
-	DrawText(score_str.c_str(), ScreenWeight + 50, ScreenHeight / 9 + 280, 40, White);
+	DrawTextEx(customFont, score_str.c_str(), {ScreenWeight + 30, ScreenHeight / 9 + 280}, 25, 0, White);
 
-	DrawText("Level", ScreenWeight + 30 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 400, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9 + 450, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
+	DrawTextWithOutline(customFont, "Level", {
+		ScreenWeight + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 410 }, 30, 0, WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 30, ScreenHeight / 9 + 450 - 1, ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 2 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9 + 450, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
 	std::string level_str = std::to_string(level);
-	DrawText(level_str.c_str(), ScreenWeight + 50, ScreenHeight / 9 + 480, 40, White);
+	DrawTextEx(customFont, level_str.c_str(), { ScreenWeight + 30, ScreenHeight / 9 + 480 }, 25, 0, White);
 
-	DrawText("Best", ScreenWeight + 30 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 600, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9 + 650, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
+	DrawTextWithOutline(customFont, "Best", {
+		ScreenWeight + 5 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 610 }, 30, 0, WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 30 - 1, ScreenHeight / 9 + 650 - 1, ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 2 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9 + 650, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
 	std::string best_str = std::to_string(best_score);
-	DrawText(best_str.c_str(), ScreenWeight + 50, ScreenHeight / 9 + 680, 40, White);
+	DrawTextEx(customFont, best_str.c_str(), { ScreenWeight + 30, ScreenHeight / 9 + 680 }, 25, 0, White);
 
-	DrawTexture(play, ScreenWeight + 30, ScreenHeight / 9 + 830, WHITE);
+	DrawTexture(play, ScreenWeight + 10, ScreenHeight / 9 + 830, WHITE);
 
-	DrawTexture(reload, ScreenWeight + 130, ScreenHeight / 9 + 830, WHITE);
+	DrawTexture(reload, ScreenWeight + 75, ScreenHeight / 9 + 830, WHITE);
 
 	if (sound_on)
-		DrawTexture(sound, ScreenWeight + 230, ScreenHeight / 9 + 830, WHITE);
+		DrawTexture(sound, ScreenWeight + 140, ScreenHeight / 9 + 830, WHITE);
 	else
-		DrawTexture(soundOff, ScreenWeight + 230, ScreenHeight / 9 + 830, WHITE);
+		DrawTexture(soundOff, ScreenWeight + 140, ScreenHeight / 9 + 830, WHITE);
 
 }
 
@@ -153,37 +199,64 @@ void Game::Draw()
 
 	while(!Collision_Wall_Down(copy_block) && !Collision_AnotherBlock_Down(copy_block))
 		copy_block.Move(1, 0);
-	copy_block.Draw(Gray);
-
+	copy_block.Draw(Gray, 8);
+	// !!!!
 	currentBlock.Draw();
 	
-	DrawText("Next", ScreenWeight + 30 + ScreenWeight / numberCols * 3/ 2, ScreenHeight / 9 - 50, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 3, DarkGray);
+		DrawTextWithOutline(customFont, "Next",
+		{
+		ScreenWeight + 5 + ScreenWeight / numberCols * 3 / 2,
+			ScreenHeight / 9 - 40
+		},
+		30,
+		0,
+		WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 20 - 1,
+		ScreenHeight / 9 - 1,
+		ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 3 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 3, DarkGray);
 	nextBlock.Draw();
 
-	DrawText("Score", ScreenWeight + 30 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 200, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9 + 250, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
-	std::string score_str =  std::to_string(score);
-	DrawText(score_str.c_str(), ScreenWeight + 50, ScreenHeight / 9 + 280, 40, White);
+	DrawTextWithOutline(customFont, "Score", {
+		ScreenWeight + ScreenWeight / numberCols * 3 / 2,  ScreenHeight / 9 + 210 }, 30, 0, WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 30 - 1,
+		ScreenHeight / 9 + 250 - 1,
+		ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 2 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9 + 250, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
+	
+	std::string score_str = std::to_string(score);
+	DrawTextEx(customFont, score_str.c_str(), {ScreenWeight + 30, ScreenHeight / 9 + 280}, 25, 0, White);
 
-	DrawText("Level", ScreenWeight + 30 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 400, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9 + 450, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
+	DrawTextWithOutline(customFont, "Level", {
+		ScreenWeight + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 410 }, 30, 0, WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 30, ScreenHeight / 9 + 450 - 1, ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 2 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9 + 450, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
 	std::string level_str = std::to_string(level);
-	DrawText(level_str.c_str(), ScreenWeight + 50, ScreenHeight / 9 + 480, 40, White);
+	DrawTextEx(customFont, level_str.c_str(), { ScreenWeight + 30, ScreenHeight / 9 + 480 }, 25, 0, White);
 
-	DrawText("Best", ScreenWeight + 30 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 600, 40, DarkGray);
-	DrawRectangle(ScreenWeight + 30, ScreenHeight / 9 + 650, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
+	DrawTextWithOutline(customFont, "Best", {
+		ScreenWeight + 5 + ScreenWeight / numberCols * 3 / 2, ScreenHeight / 9 + 610 }, 30, 0, WHITE, DarkGray, 1);
+	/*
+	DrawRectangleLines(ScreenWeight + 30 - 1, ScreenHeight / 9 + 650 - 1, ScreenWeight / numberCols * 5 + 2, ScreenWeight / numberCols * 2 + 2, WHITE);
+	*/
+	DrawRectangle(ScreenWeight + 15, ScreenHeight / 9 + 650, ScreenWeight / numberCols * 5, ScreenWeight / numberCols * 2, DarkGray);
 	std::string best_str = std::to_string(best_score);
-	DrawText(best_str.c_str(), ScreenWeight + 50, ScreenHeight / 9 + 680, 40, White);
+	DrawTextEx(customFont, best_str.c_str(), { ScreenWeight + 30, ScreenHeight / 9 + 680 }, 25, 0, White);
 
-	DrawTexture(pause, ScreenWeight + 30, ScreenHeight / 9 + 830, WHITE);
+	DrawTexture(pause, ScreenWeight + 10, ScreenHeight / 9 + 830, WHITE);
 
-	DrawTexture(reload, ScreenWeight + 130, ScreenHeight / 9 + 830, WHITE);
+	DrawTexture(reload, ScreenWeight + 75, ScreenHeight / 9 + 830, WHITE);
 
-	if(sound_on)
-		DrawTexture(sound, ScreenWeight + 230, ScreenHeight / 9 + 830, WHITE);
+	if (sound_on)
+		DrawTexture(sound, ScreenWeight + 140, ScreenHeight / 9 + 830, WHITE);
 	else
-		DrawTexture(soundOff, ScreenWeight + 230, ScreenHeight / 9 + 830, WHITE);
+		DrawTexture(soundOff, ScreenWeight + 140, ScreenHeight / 9 + 830, WHITE);
 
 	if (!Collision_Wall_Down())
 	{
@@ -204,23 +277,76 @@ void Game::Draw()
 
 	if(Collision_Wall_Down() || Collision_AnotherBlock_Down())
 	{
-		if (sound_on) { PlaySound(fallSound); };
-
-		for (auto item : currentBlock.GetCellPosition())
+		if (eventTriggered(0) == true)
 		{
-			grid.grid[item.row][item.col] = currentBlock.ID;
+			//currentBlock.drop = true;
+			if (sound_on) { PlaySound(fallSound); };
+
+			for (auto item : currentBlock.GetCellPosition())
+			{
+				grid.grid[item.row][item.col] = currentBlock.ID;
+			}
+			currentBlock = nextBlock;
+			currentBlock.offset_x = 0;
+			currentBlock.offset_y = 0;
+
+			nextBlock = GetRandBlock();
+			nextBlock.offset_x = ScreenWeight - frame / 3;
+			nextBlock.offset_y = ScreenHeight / 8;
+			
+			
 		}
-		currentBlock = nextBlock;
-		currentBlock.offset_x = 0;
-		currentBlock.offset_y = 0;
+		else
+		{
+			if (IsKeyPressed(KEY_RIGHT))
+			{
+				if (Collision_Wall_Right())
+					currentBlock.Move(0, -1);
+				if (!Collision_AnotherBlock_Right())
+					currentBlock.Move(0, 1);
+			}
+			else if (IsKeyPressed(KEY_LEFT))
+			{
+				if (Collision_Wall_Left())
+					currentBlock.Move(0, 1);
+				if (!Collision_AnotherBlock_Left())
+					currentBlock.Move(0, -1);
+			}
+			else if (IsKeyPressed(KEY_DOWN))
+			{
+				if (Collision_Wall_Down())
+					currentBlock.Move(-1, 0);
+				if (!Collision_AnotherBlock_Down())
+					currentBlock.Move(1, 0);
+			}
+			else if (IsKeyPressed(KEY_UP))
+			{
 
-		nextBlock = GetRandBlock();
-		nextBlock.offset_x = ScreenWeight - frame / 3;
-		nextBlock.offset_y = ScreenHeight / 8;
+				while (Collision_Wall_Right() && Collision_AnotherBlock_Right())
+					currentBlock.Move(0, -1);
+				while (Collision_Wall_Left() && Collision_AnotherBlock_Left())
+					currentBlock.Move(0, 1);
+				while (Collision_Wall_Down() && Collision_AnotherBlock_Down())
+					currentBlock.Move(-1, 0);
+				while (Collision_Wall_Up() && Collision_AnotherBlock_Up())
+					currentBlock.Move(1, 0);
+
+
+				if (!Collision_AnotherBlock_Right() && !Collision_AnotherBlock_Left() && !Collision_AnotherBlock_Up() 
+					&& !Collision_Wall_Right() && !Collision_Wall_Left() && !Collision_Wall_Up())
+				{
+					currentBlock.Move(-3, 0);
+					currentBlock.RotationState += 1;
+					if (currentBlock.RotationState >= currentBlock.cells.size())
+						currentBlock.RotationState = 0;
+
+				}
+
+			}
+			
+		}
+		
 	}
-
-	
-	
 }
 
 void Game::Check_Keyboard_Click()
@@ -249,9 +375,7 @@ void Game::Check_Keyboard_Click()
 	}
 	else if (IsKeyPressed(KEY_UP))
 	{
-		/*if(sound_on)
-			PlaySound(rotate);*/
-
+		
 		while (Collision_Wall_Right())
 			currentBlock.Move(0, -1);
 		while (Collision_Wall_Left())
@@ -273,6 +397,18 @@ void Game::Check_Keyboard_Click()
 	else if (IsKeyPressed(KEY_SPACE))
 	{
 		currentBlock.drop = true;
+	}
+	else if (IsKeyPressed(KEY_RIGHT_SHIFT))
+	{
+		if (sound_on)
+			PlaySound(menu);
+		pause_st = !pause_st;
+	}
+	else if (IsKeyPressed(KEY_LEFT_SHIFT))
+	{
+		if (sound_on)
+			PlaySound(menu);
+		reload_st = !reload_st;
 	}
 	/*if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 		Vector2 mousePosition = GetMousePosition();
@@ -446,7 +582,7 @@ bool Game::Collision_Wall_Right()
 
 void Game::Flicker_Fill()
 {
-	flicker = {8, 9};
+	flicker = {8, 9, 10};
 }
 
 bool Game::Destroy_Row(std::vector<int> rows)
@@ -484,7 +620,7 @@ bool Game::Destroy_Row(std::vector<int> rows)
 		out.close();
 	}
 
-	if (color == 8 || color == 9)
+	if (color == 10 || color == 8 || color == 9)
 		return false;
 	else
 		return true;
@@ -518,7 +654,7 @@ void Game::CheckLevel(int rows)
 		if (sound_on)
 			PlaySound(new_level);
 		level += 1;
-		if(speed > 0)
+		if(speed > 0.25)
 			speed -= 0.05;
 	}
 

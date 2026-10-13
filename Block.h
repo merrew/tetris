@@ -20,13 +20,14 @@ public:
 	int offset_y;
 
 	std::vector<Color> colors;
+	std::vector<Texture2D> textures;
 
 	bool drop;
 
 	Block();
 	void Draw();
 
-	void Draw(Color color);
+	void Draw(Color color, int ID);
 
 	void Move(int rows, int cols);
 

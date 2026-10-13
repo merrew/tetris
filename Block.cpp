@@ -1,10 +1,13 @@
 #include "Block.h"
+#include "Colors.h"
 
 Block::Block()
 {
 	cellSize = ScreenWeight / numberCols;
 	RotationState = 0;
 	colors = SetColor();
+	textures = SetTexture();
+	
 
 	row_offset = 0;
 	col_offset = 0;
@@ -14,22 +17,41 @@ Block::Block()
 
 	drop = false;
 
+
 }
 
 void Block::Draw()
 {
 	for (auto item : GetCellPosition())
 	{
-		DrawRectangle(item.col * cellSize + 1 + offset_x, item.row * cellSize + 1 + offset_y, cellSize - 1, cellSize - 1, colors[ID]);
+		
+		
+		Rectangle source = { 0, 0, this->textures[ID].width, this->textures[ID].height};
+		Rectangle dest = { item.col * cellSize + 1 + offset_x,
+							item.row * cellSize + 1 + offset_y,
+							cellSize - 1, cellSize - 1 };
+		Vector2 origin = { 0, 0 };
+
+		DrawTexturePro(this->textures[ID], source, dest, origin, 0.0f, WHITE);
+		
+		//DrawRectangle(item.col * cellSize + 1 + offset_x, item.row * cellSize + 1 + offset_y, cellSize - 1, cellSize - 1, colors[ID]);
 	}
 
 }
 
-void Block::Draw(Color color)
+void Block::Draw(Color color, int ID)
 {
 	for (auto item : GetCellPosition())
 	{
-		DrawRectangle(item.col * cellSize + 1 + offset_x, item.row * cellSize + 1 + offset_y, cellSize - 1, cellSize - 1, color);
+		//DrawRectangle(item.col * cellSize + 1 + offset_x, item.row * cellSize + 1 + offset_y, cellSize - 1, cellSize - 1, color);
+		DrawRectangle(item.col * cellSize + 2 + offset_x,
+			item.row * cellSize + 2 + offset_y,
+			cellSize - 3, cellSize - 3, color);
+
+		// Внешний контур (обводка)
+		DrawRectangleLines(item.col * cellSize + 1 + offset_x,
+			item.row * cellSize + 1 + offset_y,
+			cellSize - 1, cellSize - 1, colors[ID]);
 	}
 
 }

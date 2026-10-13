@@ -6,6 +6,7 @@ Grid::Grid()
 	numCols = numberCols;
 	cellSize = ScreenWeight / numCols;
 	colors = SetColor();
+	textures = SetTexture();
 
 	for (int i = 0; i < numRows; i++)
 	{
@@ -24,10 +25,23 @@ void Grid::Draw()
 		for (int col = 0; col < grid[0].size(); col++)
 		{
 			auto now_color = grid[row][col];
+			
+			if (now_color > 0 && now_color <= 7)
+			{
+				Rectangle source = { 0, 0, this->textures[now_color].width, this->textures[now_color].height };
+				Rectangle dest = { col * cellSize + 1,
+									row* cellSize + 1,
+									cellSize - 1, cellSize - 1 };
+				Vector2 origin = { 0, 0 };
 
-			DrawRectangle(col * cellSize + 1, row * cellSize + 1, cellSize - 1, cellSize - 1, colors[now_color]);
+				DrawTexturePro(this->textures[now_color], source, dest, origin, 0.0f, WHITE);
+
+			}
+
+			else DrawRectangle(col * cellSize + 1, row * cellSize + 1, cellSize - 1, cellSize - 1, colors[now_color]);
 		}
 	}
+	DrawRectangleLines(1, 1, grid[0].size() * cellSize + 2, grid.size() * cellSize - 2, WHITE);
 }
 
 std::vector<int> Grid::Check_FillLine()

@@ -20,4 +20,5 @@ private:
 	int cellSize;
 
 	std::vector<Color> colors;
+	std::vector<Texture2D> textures;
 };
